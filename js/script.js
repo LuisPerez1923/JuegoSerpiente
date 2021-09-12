@@ -67,10 +67,6 @@ $(document).ready(function(){
          } else {
             imagenFondo.src = "img/jungle3.jpg";
          }
-
-         //var fondoPatron = objeto.ctx.createPattern(imagenFondo, "repeat");
-         //objeto.ctx.fillStyle = fondoPatron; 
-         //objeto.ctx.fillRect(0, 0, objeto.w, objeto.h);
          objeto.ctx.drawImage(imagenFondo,0, 0, objeto.w, objeto.h);
 
 
@@ -121,7 +117,7 @@ $(document).ready(function(){
             c = objeto.serpiente[i];
             objeto.dibujaCelda(c.x, c.y);
          }
-         console.log(objeto.serpiente.length+" ["+"("+objeto.serpiente[0].x+","+objeto.serpiente[0].y+"),"+"("+objeto.serpiente[1].x+","+objeto.serpiente[1].y+"),"+ "("+objeto.serpiente[2].x+","+objeto.serpiente[2].y+"),"+ "("+objeto.serpiente[3].x+","+objeto.serpiente[3].y+"),"+ "("+objeto.serpiente[4].x+","+objeto.serpiente[4].y+")"+"]"          );
+         //console.log(objeto.serpiente.length+" ["+"("+objeto.serpiente[0].x+","+objeto.serpiente[0].y+"),"+"("+objeto.serpiente[1].x+","+objeto.serpiente[1].y+"),"+ "("+objeto.serpiente[2].x+","+objeto.serpiente[2].y+"),"+ "("+objeto.serpiente[3].x+","+objeto.serpiente[3].y+"),"+ "("+objeto.serpiente[4].x+","+objeto.serpiente[4].y+")"+"]"          );
 		
          //SE DIBUJA LA COMIDA
          objeto.dibujaCeldaComida(objeto.comida.x,objeto.comida.y);
@@ -144,12 +140,6 @@ $(document).ready(function(){
             imagenSerpiente.src = "img/huevo.png";
             this.ctx.drawImage(imagenSerpiente,x*this.cw, y*this.cw, this.cw*.7, this.cw);
          }
-                 
-         // this.ctx.fillStyle = "blue";
-         // this.ctx.fillRect(x*this.cw, y*this.cw, this.cw, this.cw);
-  
-         // this.ctx.strokeStyle = "#126402";
-         // this.ctx.strokeRect(x*this.cw, y*this.cw, this.cw, this.cw);
       }
 
       this.dibujaCeldaComida = function(x, y){
@@ -198,8 +188,28 @@ $(document).ready(function(){
 	else 
                    if(tecla == TECLA_ABAJO && objeto.sentido != ARRIBA) 
                       objeto.sentido = ABAJO;
-		
+                      
        ;})   
+
+      let areaTouch = document.getElementById('canvas');
+      let mc = new Hammer(areaTouch);
+      mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+
+      mc.on("panleft panright panup pandown tap press", function(ev) {
+         let tecla=ev.type;
+         if(tecla == "panleft" && objeto.sentido != DERECHA) 
+            objeto.sentido = IZQUIERDA;
+         else 
+            if(tecla == "panup" && objeto.sentido != ABAJO) 
+               objeto.sentido = ARRIBA;
+            else 
+               if(tecla == "panright" && objeto.sentido != IZQUIERDA) 
+                  objeto.sentido = DERECHA;
+               else 
+                  if(tecla == "pandown" && objeto.sentido != ARRIBA) 
+                     objeto.sentido = ABAJO;
+            
+         });
        
        //SE AGREGAN LO EVENTOS PARA CUANDO CAMBIA EL TAMANIO DE LA VENTANA             
        $(window).resize(function(e){
