@@ -1,0 +1,237 @@
+$(document).ready(function(){
+	
+
+        const DERECHA   =   10;
+        const IZQUIERDA =   20;
+        const ARRIBA    =   30;
+        const ABAJO     =   40;
+
+        const TECLA_DERECHA   =   "39";
+        const TECLA_IZQUIERDA =   "37";
+        const TECLA_ARRIBA    =   "38";
+        const TECLA_ABAJO      =   "40";
+        
+   
+
+        //SE OBTIENE EL CANVAS Y SU CONTEXTO
+	var canvas = $("#canvas")[0];
+	var ctx = canvas.getContext("2d");
+
+	
+        
+
+        var myElement = document.getElementById('canvas');
+
+        var mc = new Hammer(myElement);
+
+        mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+
+        mc.on("panleft panright panup pandown tap press", function(ev) {
+             
+               var tecla=ev.type;
+                    
+		if(tecla == "panleft" && sentido != DERECHA) 
+                    sentido = IZQUIERDA;
+		else 
+                    if(tecla == "panup" && sentido != ABAJO) 
+                       sentido = ARRIBA;
+		    else 
+                        if(tecla == "panright" && sentido != IZQUIERDA) 
+                            sentido = DERECHA;
+		        else 
+                            if(tecla == "pandown" && sentido != ARRIBA) 
+                                sentido = ABAJO;
+        });
+
+	//SE AGREGAN LO EVENTOS PARA CUANDO CAMBIA LA RESOLUCION DEL
+        //DISPOSITIVO       
+        window.addEventListener('resize', resizeCanvas, false);
+        window.addEventListener('orientationchange', resizeCanvas, false);
+        resizeCanvas()
+
+
+	var w = $("#canvas").width();
+	var h = $("#canvas").height();      
+
+
+        
+		
+	var cw = h*0.06;
+
+	var sentido;
+	var comida;
+	var score;
+	
+	//VARIABLE PARA ALMACENAR LA SERPIENTE
+	var serpiente;
+
+        
+       function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+	    w = $("#canvas").width();
+	    h = $("#canvas").height(); 
+            cw = h*0.06;
+            ctx.font=h*0.06+"px Arial";
+       }
+
+	
+	function init(){
+		sentido = DERECHA; 
+		crearSerpiente();
+		crearComida(); 
+	        
+
+		score = 0;
+		
+
+		if(typeof estado != "undefined") 
+                   clearInterval(estado);
+		estado = setInterval(dibujar, 60);
+	      
+
+       }
+	init();
+	
+	function crearSerpiente(){
+		var tamanio_inicial = 5;
+		serpiente = []; 
+		for(var i = tamanio_inicial-1; i>=0; i--){
+			//SE GUARDAN AL FINAL DEL ARREGLO [4,0][3,0][2,0][1,0][0,0]
+			serpiente.push({x: i, y:0});
+		}
+	}
+		
+	
+	function crearComida(){
+		comida = {
+			x: Math.round(Math.random()*(w-cw)/cw), 
+			y: Math.round(Math.random()*(h-cw)/cw), 
+		};
+		
+	}
+	
+
+	function dibujar()	{
+
+		
+
+
+		ctx.fillStyle = "white";
+		ctx.fillRect(0, 0, w, h);
+		ctx.strokeStyle = "black";
+		ctx.strokeRect(0, 0, w, h);
+		
+
+                
+		var nx = serpiente[0].x;
+		var ny = serpiente[0].y;
+	
+                switch(sentido){
+                     case DERECHA:
+                         nx++;
+                         break;
+                     case IZQUIERDA:
+                         nx--;
+                         break;
+                     case ARRIBA:
+                         ny--;
+                         break;
+                     case ABAJO:
+                         ny++;
+                         break;
+                }
+
+
+
+		//SE REINICIA EL JUEGO	
+      
+		if(nx < 0 || nx*cw > w	 || ny < 0 || ny*cw > h || detectaColision(nx, ny, serpiente)){
+			
+			init();
+			
+			return;
+		}
+		
+
+		//SI LA COMIDA ESTA EN EL CAMINO DE LA SERPIRNETE, ENTONCES SE CREA UNA
+                //NUEVA CELDA PARA LA SERPIENTE Y SE CREA UNA NUEVA COMIDA
+		if(nx == comida.x && ny == comida.y)
+		{
+			var celda_nueva = {x: nx, y: ny};
+			score++;
+			
+			crearComida();
+		}
+		else
+		{
+                        //SI LA COMIDA NO ESTA EN EL CAMINO DE LA SERPIENTE, SE QUITA EL ELMENENTO CON LA POSICION
+                        //MAS PEQUEÑA Y SE AGREGARA LA NUEVA CELDA
+			var celda_nueva = serpiente.pop(); 
+			celda_nueva.x = nx; 
+                        celda_nueva.y = ny;
+		}
+		
+
+                //SE AGREGA AL INICIO DEL ARREGLO			
+		serpiente.unshift(celda_nueva);
+		
+                //SE DIBUJA CADA CELDA DE LA SERPIENTE DE LA SERPIENTE
+		for(var i = 0; i < serpiente.length; i++)
+		{
+			var c = serpiente[i];
+		
+			dibujaCelda(c.x, c.y);
+		}
+		
+		//SE DIBUJA LA COMIDA
+		dibujaCelda(comida.x, comida	.y);
+		
+                //SE DIBUJA EL SCORE
+		var score_text = "Score: " + score;
+		ctx.font=h*0.06+"px Arial";
+		ctx.fillText(score_text, h*0.06, h-5);
+	}
+	
+	
+	function dibujaCelda(x, y)
+	{
+		ctx.fillStyle = "red";
+		ctx.fillRect(x*cw, y*cw, cw, cw);
+
+		ctx.strokeStyle = "white";
+		ctx.strokeRect(x*cw, y*cw, cw, cw);
+                
+	}
+	
+	function detectaColision(x, y, array)
+	{
+
+		for(var i = 0; i < array.length; i++)
+		{
+			if(array[i].x == x && array[i].y == y)
+			 return true;
+		}
+		return false;
+	}
+	
+	//SE CAPTURAN LO EVENTO DEL TECLADO
+	$(document).keydown(function(e){
+		var tecla = e.which;
+		
+		if(tecla == TECLA_IZQUIERDA && sentido != DERECHA) 
+                    sentido = IZQUIERDA;
+		else 
+                    if(tecla == TECLA_ARRIBA && sentido != ABAJO) 
+                       sentido = ARRIBA;
+		    else 
+                        if(tecla == TECLA_DERECHA && sentido != IZQUIERDA) 
+                            sentido = DERECHA;
+		        else 
+                            if(tecla == TECLA_ABAJO && sentido != ARRIBA) 
+                                sentido = ABAJO;
+		
+	})
+	
+	
+})
