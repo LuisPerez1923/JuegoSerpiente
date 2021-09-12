@@ -25,7 +25,7 @@ $(document).ready(function(){
       this.serpiente=null;
       this.comida=null;
       this.score=0;
-      this.escala=0.04;
+      this.escala=0.03;
       this.cw = 0;
 
       //Comida
@@ -61,11 +61,11 @@ $(document).ready(function(){
          var imagenFondo = new Image();
 
          if (objeto.canvas.width > 1280) {
-            imagenFondo.src = "img/Jungle.jpg";
+            imagenFondo.src = "img/jungle.jpg";
          } else if (objeto.canvas.width > 990) {
-            imagenFondo.src = "img/Jungle2.jpg";
+            imagenFondo.src = "img/jungle2.jpg";
          } else {
-            imagenFondo.src = "img/Jungle3.jpg";
+            imagenFondo.src = "img/jungle3.jpg";
          }
 
          //var fondoPatron = objeto.ctx.createPattern(imagenFondo, "repeat");
